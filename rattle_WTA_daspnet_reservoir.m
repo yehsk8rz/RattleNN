@@ -1,26 +1,18 @@
-function [] = rattle_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn)
-% RATTLE_DASPNET_RESERVOIR Neural network model of the development of reduplicated rattle shaking in human infancy.
-%
-% Modification of Izhikevich's (2007 Cerebral Cortex) daspnet.m and of a previous model described in Warlaumont (2012, 2013 ICDL-EpiRob).
-%
-% For further reading:
-%
-% Warlaumont A.S. (2012) Salience-based reinforcement of a spiking neural network leads to increased syllable production.
-% Proceedings of the 2013 IEEE Third Joint International Conference on Development and Learning and Epigenetic Robotics (ICDL). doi: 10.1109/DevLrn.2013.6652547
-%
-% Izhikevich E.M. (2007) Solving the Distal Reward Problem through Linkage of STDP and Dopamine Signaling. Cerebral Cortex. doi: 10.1093/cercor/bhl152
+function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn)
+% RATTLE_WTA_DASPNET_RESERVOIR Neural network model of the development of reduplicated rattle shaking in human infancy.
+% This version of the code uses a "Winner Takes All" approach to frequency selection of a given action (sine movement).
 %
 % Description of Input Arguments:
-% id % Unique identifier for this simulation. Must not contain white space.
-% newT % Time experiment is to run in seconds. Can specify new times (longer or shorter)
-% for experimental runs by changing this value when a simulation is restarted.
-% reinforcer % Type of reinforcement. Can be 'human', 'relhisal', or 'range'.
-% outInd % Index of reservoir neurons that project to motor neurons. Length of this vector must be even. Recommended vector is 1:100
-% muscscale % Scales activation sent to Praat. Recommended value is 4
-% yoke % Indicates whether to run an experiment or yoked control simulation. Set to 'false' to run a regular simulation.
-% Set to 'true' to run a yoked control. There must alread have been a simulation of the same name run with its
-% data on the MATLAB path for the simulation to yoke to.
-% plotOn % Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
+% id            Unique identifier for this simulation. Must not contain white space.
+% newT          Time experiment is to run in seconds. Can specify new times (longer or shorter)
+%               for experimental runs by changing this value when a simulation is restarted.
+% reinforcer    Type of reinforcement. Can be 'microphone'.
+% outInd        Index of reservoir neurons that project to motor neurons. Length of this vector must be even. Recommended vector is 1:100
+% muscscale     Scales activation sent to Praat. Recommended value is 4
+% yoke          Indicates whether to run an experiment or yoked control simulation. Set to 'false' to run a regular simulation.
+%               Set to 'true' to run a yoked control. There must alread have been a simulation of the same name run with its
+%               data on the MATLAB path for the simulation to yoke to.
+% plotOn        Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
 %
 % Example of Use:
 % rattle_daspnet_reservoir('trial',300,'microphone',1:100,'false',1);
@@ -117,8 +109,8 @@ else
     firings=[-D 0]; % All reservoir neuron firings for the current second.
     outFirings=[-D 0]; % Output neuron spike timings.
     motFirings=[-D 0]; % Motor neuron spike timings.
+    summusc1spikes = zeros(1,5);
     DA=0; % Level of dopamine above the baseline.
-    muscsmooth=100; % Spike train data sent to Praat is smoothed by doing a 100 ms moving average.
     sec=0;
     rewcount=0;
     rew=[];
@@ -231,27 +223,20 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end;
         % Every testint seconds, use the motor neuron spikes to generate a sound.
         if (mod(sec,testint)==0)
-            firedmusc1pos=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
-            firedmusc1neg=find(v_mot(Nmot/2+1:end)>=30);
-            summusc1posspikes(t)=size(firedmusc1pos,1); % Sum the spikes at each timestep across the set of motor neurons.
-            summusc1negspikes(t)=size(firedmusc1neg,1);
+            summusc1spikes([1,1])=sum(find(v_mot(1:Nmot/5)>=30));
+            summusc1spikes([1,2])=sum(find(v_mot(Nmot/5+1:(2*(Nmot/5)))>=30));
+            summusc1spikes([1,3])=sum(find(v_mot((2*(Nmot/5))+1:(3*(Nmot/5)))>=30));
+            summusc1spikes([1,4])=sum(find(v_mot((3*(Nmot/5))+1:(5*(Nmot/5)))>=30));
+            summusc1spikes([1,5])=sum(find(v_mot((5*(Nmot/5))+1:end)>=30));
+            maxmusclspikes = max(summusc1spikes);
+            %Error checking (if groups spike same amount)
+            if maxmusclspikes == 0
+            wta = 0;
+            else
+            wta = find(summusc1spikes == maxmusclspikes);
+            end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
-                % Create a moving average of the summed spikes.
-                %                 for smootht=muscsmooth:1000
-                %                     smoothmuscpos(smootht,sec)=mean(summusc1posspikes((smootht-muscsmooth+1):smootht));
-                %                     smoothmuscneg(smootht,sec)=mean(summusc1negspikes((smootht-muscsmooth+1):smootht));
-                %                     smoothmusc(smootht,sec)=muscscale*(smoothmuscpos(smootht,sec)-smoothmuscneg(smootht,sec));
-                %                 end
-                % History of total motor neuron spikes for each second.
-                %summusc1posspikeshist(sec)=sum(summusc1posspikes);
-                %summusc1negspikeshist(sec)=sum(summusc1negspikes);
-                meanf = 7;
-                scale = 10;
-                %900ms
-                f = ((sum(summusc1posspikes(101:1000))*0)+(sum(summusc1negspikes(101:1000))*(meanf*2)))/(sum(summusc1posspikes(101:1000))+sum(summusc1negspikes(101:1000)));
-                %100ms
-                %f = ((sum(summusc1posspikes(901:1000))*0)+(sum(summusc1negspikes(901:1000))*(meanf*2)))/(sum(summusc1posspikes(901:1000))+sum(summusc1negspikes(901:1000)));
-                f =  f*scale-(meanf*scale)+meanf;
+                f = 5*wta;
                 xshift = 120;
                 record(macRec);
                 %Iterate
@@ -288,7 +273,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                     end
                 elseif strcmp(reinforcer, 'microphone')
                     if sec > 10
-                        targetRMS = mean(trialInfo(1,sec-10:sec-1))
+                        targetRMS = mean(trialInfo(1,sec-10:sec-1));
                         if micRMS > targetRMS
                             rew=[rew,sec*1000+t];
                             rewcount= rewcount+1;
