@@ -1,4 +1,4 @@
-function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn)
+function [] = rattle_recur_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn)
 % RATTLE_WTA_DASPNET_RESERVOIR Neural network model of the development of reduplicated rattle shaking in human infancy.
 % This version of the code uses a "Winner Takes All" approach to frequency selection of a given action (sine movement).
 %
@@ -15,7 +15,7 @@ function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn
 % plotOn        Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
 %
 % Example of Use:
-% rattle_WTA_daspnet_reservoir('trial',300,'microphone',1:100,'false',1);
+% rattle_recur_daspnet_reservoir('trial',300,'microphone',1:100,'false',1);
 %
 % Authors: Forrest Yeh and Anne S. Warlaumont
 % Cognitive and Information Sciences
@@ -68,12 +68,12 @@ if strcmp(yoke, 'true')
 end
 % Creating workspace names.
 if strcmp(yoke,'false')
-    workspaceFilename=[workspacedir,'/rattle_daspnet_reservoir_',id,'.mat'];
+    workspaceFilename=[workspacedir,'/rattle_recur_daspnet_reservoir_',id,'.mat'];
 elseif strcmp(yoke,'true')
     % Where to put the yoked control simulation data.
-    workspaceFilename=[yokeworkspacedir,'/rattle_daspnet_reservoir_',id,'_yoke.mat'];
+    workspaceFilename=[yokeworkspacedir,'/rattle_recur_daspnet_reservoir_',id,'_yoke.mat'];
     % Where to find the original simulation data.
-    yokeSourceFilename=[workspacedir,'/rattle_daspnet_reservoir_',id,'.mat'];
+    yokeSourceFilename=[workspacedir,'/rattle_recur_daspnet_reservoir_',id,'.mat'];
 end
 if exist(workspaceFilename, 'file') > 0
     load(workspaceFilename);
@@ -95,6 +95,7 @@ else
     % Normalizing the synaptic weights.
     sout=sout./(mean(mean(sout)));
     sd=zeros(Nout,Nmot); % The change to be made to sout.
+    inRecur = rand([N,1]); %Randomize first input
     for i=1:N
         delays{i,1}=1:M;
     end
@@ -132,6 +133,7 @@ end
 
 %Arduino and Microphone Initialization
 global ard macRec
+
 if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
     delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
 end
@@ -170,7 +172,20 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
     yokedruntime = sec;
     for t=1:1000 % Millisecond timesteps
         %Random Thalamic Input.
-        I=13*(rand(N,1)-0.5);
+        %I=13*(rand(N,1)-0.5);
+        
+        %Recursive input from sound file
+        if exist('micData');
+            samplPoint = round((size(micData,1))/N);
+            for j = 1:N-1
+                inRecur(j,1) = micData((samplPoint*j)-samplPoint+1);
+            end
+        end
+        maxInRecur = max(inRecur);
+        minInRecur = min(inRecur);
+        inRecur = (inRecur-minInRecur)/(maxInRecur-minInRecur); %normalize data 0-1
+        I=13*(inRecur-0.5); %scale input data to 12.5-13.5
+        
         I_mot=13*(rand(Nmot,1)-0.5);
         fired = find(v>=30); % Indices of fired neurons
         fired_out = find(v(outInd)>=30);
@@ -301,9 +316,9 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
     % Writing reservoir neuron firings for this second to a text file.
     if mod(sec,SAVINTV*testint)==0 || sec==T
         if strcmp(yoke,'false')
-            firings_fid = fopen([firingsdir,'/rattle_daspnet_firings_',id,'_',num2str(sec),'.txt'],'w');
+            firings_fid = fopen([firingsdir,'/rattle_recur_daspnet_firings_',id,'_',num2str(sec),'.txt'],'w');
         elseif strcmp(yoke,'true')
-            firings_fid = fopen([firingsdir,'/rattle_daspnet_firings_',id,'_yoke_',num2str(sec),'.txt'],'w');
+            firings_fid = fopen([firingsdir,'/rattle_recur_daspnet_firings_',id,'_yoke_',num2str(sec),'.txt'],'w');
         end
         for firingsrow = 1:size(firings,1)
             fprintf(firings_fid,'%i\t',sec);
