@@ -140,15 +140,16 @@ end
 
 %Arduino and Microphone Initialization
 global ard macRec
-if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
-    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
+if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))  %1411 for FYmbp, 1421 for EOCmac
+    delete(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))   %1411 for FYmbp, 1421 for EOCmac
 end
-ard = arduino('/dev/tty.usbmodem1411');
+ard = arduino('/dev/tty.usbmodem1421'); %1411 for FYmbp, 1421 for EOCmac
 ard.servoAttach(9);
 %Microphone Initialization
 %Use audiodevinfo(1,:) to figure out ID to use.
-%Can use audiodevinfo(1,44100,16,1) to auto find a working ID
-macRec = audiorecorder(44100,16,1,1);
+%Can use audiodevinfo(1,44100,16,1) to auto find a working ID (Typically 1
+%for FYmbp, and 0 for EOCmac
+macRec = audiorecorder(44100,16,1,0);
 if sec==0
     %Determine Teacher RMS
     %targetRMS= teacher()
@@ -271,7 +272,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 micData = getaudiodata(macRec, 'int16');
                 micRMS = sqrt(mean(micData.^2));
                 trialInfo(2,sec) = f;
-                trialInfo(1,sec) = micRMS;
+                trialInfo(1,sec) = micRMS; %Changed from micRMS to size(micData) to see if the sound files are getting longer
                 trialInfo(4,sec) = targetRMS*thresh;
                 fprintf('Frequency: %f\n',trialInfo(2,sec))
                 %fprintf('X-Shift: %f\n',xshift)

@@ -119,6 +119,7 @@ else
     v_mot_hist={};
     %sout_hist={};
     trialInfo = NaN(4,newT);
+    timeInfo = NaN(2,newT);
     targetRMS = NaN;
     
     % Variables for saving data.
@@ -134,15 +135,16 @@ end
 %Arduino and Microphone Initialization
 global ard macRec
 
-if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
-    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
+if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))  %1441 for lab mac, 1411 for FYmbp
+    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))   %1441 for lab mac, 1411 for FYmbp
 end
-ard = arduino('/dev/tty.usbmodem1411');
+ard = arduino('/dev/tty.usbmodem1411');   %1441 for lab mac, 1411 for FYmbp
 ard.servoAttach(9);
 %Microphone Initialization
 %Use audiodevinfo(1,:) to figure out ID to use.
-%Can use audiodevinfo(1,44100,16,1) to auto find a working ID
-macRec = audiorecorder(44100,16,1,1);
+%Can use audiodevinfo(1,44100,16,1) to auto find a working ID usually 0 for
+%lab mac, 1 for FYmbp
+macRec = audiorecorder(44100,16,1,0);
 if sec==0
     %Determine Teacher RMS
     %targetRMS= teacher()
@@ -271,8 +273,12 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 micData = getaudiodata(macRec, 'int16');
                 micRMS = sqrt(mean(micData.^2));
                 trialInfo(2,sec) = f;
-                trialInfo(1,sec) = micRMS;
+                trialInfo(1,sec) = micRMS; 
                 trialInfo(4,sec) = targetRMS*thresh;
+                %debugging timing issues
+                timeInfo(1,sec) = size(micData,1);
+                timeInfo(2,sec) = tic;
+
                 fprintf('Frequency: %f\n',trialInfo(2,sec))
                 %fprintf('X-Shift: %f\n',xshift)
                 fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
