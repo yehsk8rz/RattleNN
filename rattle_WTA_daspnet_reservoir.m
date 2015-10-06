@@ -142,7 +142,7 @@ ard.servoAttach(9);
 %Use audiodevinfo(1,:) to figure out ID to use.
 %Can use audiodevinfo(1,44100,16,1) to auto find a working ID (Typically 1
 %for FYmbp, and 0 for EOCmac
-macRec = audiorecorder(44100,16,1,1);
+macRec = audiorecorder(44100,16,1,0);
 if sec==0
     %Determine Teacher RMS
     %targetRMS= teacher()
