@@ -271,7 +271,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                     end
                     ard.servoWrite(9,pos);
                     rtd = toc;
-                    pause(0.03); %include rtd with: pause(0.03-rtd);
+                    pause(0.03-rtd); %include rtd with: pause(0.03-rtd);
                     tic
                     timeInfo(2,k)=rtd; %collect real time difference values during movement
                 end

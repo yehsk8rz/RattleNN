@@ -27,7 +27,8 @@ function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn
 
 %INITIALIZATIONS AND LOADING%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+format shortg
+cIN = clock;
 rng shuffle;
 % Initialization.
 DAinc = 1; % Amount of dopamine given during reward.
@@ -139,7 +140,8 @@ ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
 %Microphone Initialization
 %Use audiodevinfo(1,:) to figure out ID to use.
-%Can use audiodevinfo(1,44100,16,1) to auto find a working ID
+%Can use audiodevinfo(1,44100,16,1) to auto find a working ID (Typically 1
+%for FYmbp, and 0 for EOCmac
 macRec = audiorecorder(44100,16,1,1);
 if sec==0
     %Determine Teacher RMS
@@ -411,6 +413,9 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end
         fclose(vmhist_fid);
         vlstsec = sec; % Latest second of saving.
+        %print time when simulation ends
+        cOUT = clock % when simulation ends
+        RRT = (((cOUT(4)-cIN(4))*60))+(cOUT(5)-cIN(5)) %Real Run-time (Min)
         save(workspaceFilename, 'vlstsec', '-append'); % Saving the value of the last written second in case the simulation is terminated and restarted.
         display('Data Saved.');
     end
