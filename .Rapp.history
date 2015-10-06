@@ -1,1 +1,12 @@
 source('rattlestats.r')
+library("devtools"); install_github("lme4/lme4",dependencies=TRUE)
+install.packages("lme4",#
+   repos=c("http://lme4.r-forge.r-project.org/repos",#
+          getOption("repos")[["CRAN"]]))
+install.packages("lme4.0",#
+                 repos=c("http://lme4.r-forge.r-project.org/repos",#
+                         getOption("repos")[["CRAN"]]))
+source("/Users/Bubba/Desktop/COGS195/Github/RattleNN/rattlestats.R")
+source("/Users/Bubba/Desktop/COGS195/IEEEICDL15/reinforced-yoked-RMS_RESULTS/rattlestats.R")
+source("/Users/Bubba/Desktop/COGS195/IEEEICDL15/reinforced-yoked-RMS_RESULTS/rattlestats.R")
+source("/Users/Bubba/Desktop/COGS195/Github/RattleNN/rattlestats.R")
