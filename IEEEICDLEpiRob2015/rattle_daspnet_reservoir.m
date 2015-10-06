@@ -35,8 +35,7 @@ function [] = rattle_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn)
 
 %INITIALIZATIONS AND LOADING%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-format shortg
-cIN = clock;
+
 rng shuffle;
 % Initialization.
 DAinc = 1; % Amount of dopamine given during reward.
@@ -127,9 +126,7 @@ else
     v_mot_hist={};
     %sout_hist={};
     trialInfo = NaN(4,newT);
-    timeInfo = NaN(2,newT); %used when measuring real-time for each movement
     targetRMS = NaN;
-    rtd = 0; %Real Time Difference
     
     % Variables for saving data.
     vlstsec = 0; % Record of when v_mot_hist was last saved.
@@ -257,10 +254,8 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 %f = ((sum(summusc1posspikes(901:1000))*0)+(sum(summusc1negspikes(901:1000))*(meanf*2)))/(sum(summusc1posspikes(901:1000))+sum(summusc1negspikes(901:1000)));
                 f =  f*scale-(meanf*scale)+meanf;
                 xshift = 120;
-                
                 record(macRec);
                 %Iterate
-                tic
                 for k = 1:100
                     pos = round(25*sin(k*f*((pi)/180))+xshift);
                     %Error Check on pos
@@ -270,16 +265,9 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                         pos = 1;
                     end
                     ard.servoWrite(9,pos);
-                    rtd = toc;
-                    pause(0.03); %include rtd with: pause(0.03-rtd);
-                    tic
-                    timeInfo(2,k)=rtd; %collect real time difference values during movement
+                    pause(0.03);
                 end
                 stop(macRec);
-                timeInfo(1,sec) = mean(timeInfo(2,100)); %store mean value of rtd for that movement
-                %move arm to neutral position
-                ard.servoWrite(9,xshift);
-                
                 %Determine Reward
                 micData = getaudiodata(macRec, 'int16');
                 micRMS = sqrt(mean(micData.^2));
@@ -439,16 +427,10 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end
         fclose(vmhist_fid);
         vlstsec = sec; % Latest second of saving.
-        %print time when simulation ends
-        cOUT = clock % when simulation ends
-        RRT = (((cOUT(4)-cIN(4))*60))+(cOUT(5)-cIN(5)) %Real Run-time (Min)
         save(workspaceFilename, 'vlstsec', '-append'); % Saving the value of the last written second in case the simulation is terminated and restarted.
         display('Data Saved.');
-        
     end
-    
 end
-
 end
 
 function [targetRMS] = teacher()
