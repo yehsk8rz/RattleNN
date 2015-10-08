@@ -16,4 +16,21 @@ It borrows heavily from Izhikevich's (2007) model:
 E. M. Izhikevich, “Solving the distal reward problem through linkage of STDP and dopamine signaling,” Cerebral Cortex, vol. 17, no. 10, pp. 2443–2452, 2007. Code available at http://izhikevich.org/publications/dastdp.htm
 
 
+To analyze data:
+1. use DATAvar.m to obtain .csv file from runs
+2. Use rattleresults.R to see how RMS increases over time in regular runs vs yoked runs
+3. Use RMSvsf.R to plot the RMS values vs frequency and see sigmoid nature of motions generated vs the sound they made.
+
+arduino.m
+-Must be in path in order to communicate with the micro controller. Typically use pin 9 on the arduino.
+
+simloop.m
+- perform consecutive runs separated into individual workspaces
+
+simloopDEMO.m
+-Used for presentations to show the output from network in real time. It will most likely not learn if the environment is loud.
+
+
+
+
 Authors: Forrest Yeh and Anne S. Warlaumont
