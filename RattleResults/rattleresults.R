@@ -2,7 +2,7 @@ library(lme4)
 library(lmerTest)
 library(ggplot2)
 
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN')
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')
 rattledata = read.csv('data.csv')
 colnames(rattledata) = c("run","yoked","sec","RMS","f")
 rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"
