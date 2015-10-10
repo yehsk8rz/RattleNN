@@ -256,7 +256,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 %100ms
                 %f = ((sum(summusc1posspikes(901:1000))*0)+(sum(summusc1negspikes(901:1000))*(meanf*2)))/(sum(summusc1posspikes(901:1000))+sum(summusc1negspikes(901:1000)));
                 f =  f*scale-(meanf*scale)+meanf;
-                xshift = 120;
+                xshift = 90;
                 
                 record(macRec);
                 %Iterate
