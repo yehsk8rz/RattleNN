@@ -15,7 +15,7 @@ function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn
 % plotOn        Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
 %
 % Example of Use:
-% rattle_WTA_daspnet_reservoir('trial',300,'microphone',1:100,'false',1);
+% rattle_WTA_daspnet_reservoir('run',300,'microphone',1:100,'false',1);
 %
 % Authors: Forrest Yeh and Anne S. Warlaumont
 % Cognitive and Information Sciences
@@ -228,8 +228,8 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
             summusc1spikes([1,1])=sum(find(v_mot(1:Nmot/5)>=30));
             summusc1spikes([1,2])=sum(find(v_mot(Nmot/5+1:(2*(Nmot/5)))>=30));
             summusc1spikes([1,3])=sum(find(v_mot((2*(Nmot/5))+1:(3*(Nmot/5)))>=30));
-            summusc1spikes([1,4])=sum(find(v_mot((3*(Nmot/5))+1:(5*(Nmot/5)))>=30));
-            summusc1spikes([1,5])=sum(find(v_mot((5*(Nmot/5))+1:end)>=30));
+            summusc1spikes([1,4])=sum(find(v_mot((3*(Nmot/5))+1:(4*(Nmot/5)))>=30));
+            summusc1spikes([1,5])=sum(find(v_mot((4*(Nmot/5))+1:end)>=30));
             maxmusclspikes = max(summusc1spikes);
             %Error checking (if groups spike same amount)
             if maxmusclspikes == 0
@@ -239,9 +239,11 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
             end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
                 f = 5*wta;
+                f = datasample(f,1);
                 xshift = 120;
                 record(macRec);
                 %Iterate
+                tic
                 for k = 1:100
                     pos = round(25*sin(k*f*((pi)/180))+xshift);
                     %Error Check on pos
@@ -251,9 +253,16 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                         pos = 1;
                     end
                     ard.servoWrite(9,pos);
-                    pause(0.03);
+                    rtd = toc;
+                    pause(0.03-rtd); %include rtd with: pause(0.03-rtd);
+                    tic
+                    timeInfo(2,k)=rtd; %collect real time difference values during movement
                 end
                 stop(macRec);
+                timeInfo(1,sec) = mean(timeInfo(2,100)); %store mean value of rtd for that movement
+                %Move arm to neutral position
+                ard.servoWrite(9,xshift);
+                
                 %Determine Reward
                 micData = getaudiodata(macRec, 'int16');
                 micRMS = sqrt(mean(micData.^2));
