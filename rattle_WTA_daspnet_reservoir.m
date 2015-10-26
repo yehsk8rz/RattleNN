@@ -285,7 +285,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 elseif strcmp(reinforcer, 'microphone')
                     if sec > 10
                         targetRMS = mean(trialInfo(1,sec-10:sec-1));
-                        if micRMS > targetRMS
+                        if micRMS > targetRMS && f~=0  %Added && f~=0 to see if learning can actually happen (may still have an issue with yoke's mysterious learning)
                             rew=[rew,sec*1000+t];
                             rewcount= rewcount+1;
                             fprintf(2,'%s\n','Reward has been given ')
