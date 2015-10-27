@@ -225,11 +225,11 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end;
         % Every testint seconds, use the motor neuron spikes to generate a sound.
         if (mod(sec,testint)==0)
-            summusc1spikes(1,1)=size(find(motFirings(:,2)<(Nmot/5)),1);
-            summusc1spikes(1,2)=size(find(motFirings(:,2)>(Nmot/5)+1 & motFirings(:,2)<2*(Nmot/5)),1);
-            summusc1spikes(1,3)=size(find(motFirings(:,2)>2*(Nmot/5)+1 & motFirings(:,2)<3*(Nmot/5)),1);
-            summusc1spikes(1,4)=size(find(motFirings(:,2)>3*(Nmot/5)+1 & motFirings(:,2)<4*(Nmot/5)),1);
-            summusc1spikes(1,5)=size(find(motFirings(:,2)>4*(Nmot/5)+1),1);
+            summusc1spikes([1,1])=size(find(motFirings(:,2)<(Nmot/5)));
+            summusc1spikes([1,2])=size(find(motFirings(:,2)>(Nmot/5)+1 & motFirings(:,2)<2*(Nmot/5)));
+            summusc1spikes([1,3])=size(find(motFirings(:,2)>2*(Nmot/5)+1 & motFirings(:,2)<3*(Nmot/5)));
+            summusc1spikes([1,4])=size(find(motFirings(:,2)>3*(Nmot/5)+1 & motFirings(:,2)<4*(Nmot/5)));
+            summusc1spikes([1,5])=size(find(motFirings(:,2)>4*(Nmot/5)+1));
             maxmusclspikes = find(summusc1spikes(1,:)==max(summusc1spikes(1,:)));
             %Error checking (if groups spike same amount)
             if maxmusclspikes == 0
