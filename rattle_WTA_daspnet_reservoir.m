@@ -239,7 +239,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
 wta = maxmusclspikes;
             end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
-                f = 5*wta
+                f = 5*wta;
                 f = datasample(f,1);
                 xshift = 120;
                 record(macRec);
