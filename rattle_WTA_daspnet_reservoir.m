@@ -82,7 +82,7 @@ else
     M=100; % number of synapses per neuron
     D=1; % maximal conduction delay
     % excitatory neurons % inhibitory neurons % total number
-    Ne=1000; Ni=400; N=Ne+Ni; %usually, Ne = 800, Ni = 200
+    Ne=800; Ni=200; N=Ne+Ni; %usually, Ne = 800, Ni = 200
     Nout = length(outInd);
     Nmot=Nout; % Number of motor neurons that the output neurons in the reservoir connect to.
     a=[0.02*ones(Ne,1); 0.1*ones(Ni,1)]; % Sets time scales of membrane recovery variable.
