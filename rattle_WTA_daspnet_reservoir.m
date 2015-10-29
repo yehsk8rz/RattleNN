@@ -233,10 +233,10 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
             maxmusclspikes = find(summusc1spikes(1,:)==max(summusc1spikes(1,:)));
             %Error checking (if groups spike same amount)
             if maxmusclspikes == 0
-            wta = 0;
+                wta = 0;
             else
-%             wta = find(summusc1spikes(1,:) == maxmusclspikes);
-wta = maxmusclspikes;
+                %             wta = find(summusc1spikes(1,:) == maxmusclspikes);
+                wta = maxmusclspikes;
             end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
                 f = 5*wta;

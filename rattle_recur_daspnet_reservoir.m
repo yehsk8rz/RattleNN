@@ -119,7 +119,6 @@ else
     v_mot_hist={};
     %sout_hist={};
     trialInfo = NaN(4,newT);
-    timeInfo = NaN(2,newT);
     targetRMS = NaN;
     
     % Variables for saving data.
@@ -135,16 +134,15 @@ end
 %Arduino and Microphone Initialization
 global ard macRec
 
-if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))  %1441 for lab mac, 1411 for FYmbp
-    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))   %1441 for lab mac, 1411 for FYmbp
+if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
+    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
 end
-ard = arduino('/dev/tty.usbmodem1411');   %1441 for lab mac, 1411 for FYmbp
+ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
 %Microphone Initialization
 %Use audiodevinfo(1,:) to figure out ID to use.
-%Can use audiodevinfo(1,44100,16,1) to auto find a working ID usually 0 for
-%lab mac, 1 for FYmbp
-macRec = audiorecorder(44100,16,1,0);
+%Can use audiodevinfo(1,44100,16,1) to auto find a working ID
+macRec = audiorecorder(44100,16,1,1);
 if sec==0
     %Determine Teacher RMS
     %targetRMS= teacher()
@@ -240,23 +238,25 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end;
         % Every testint seconds, use the motor neuron spikes to generate a sound.
         if (mod(sec,testint)==0)
-            summusc1spikes([1,1])=sum(find(v_mot(1:Nmot/5)>=30));
-            summusc1spikes([1,2])=sum(find(v_mot(Nmot/5+1:(2*(Nmot/5)))>=30));
-            summusc1spikes([1,3])=sum(find(v_mot((2*(Nmot/5))+1:(3*(Nmot/5)))>=30));
-            summusc1spikes([1,4])=sum(find(v_mot((3*(Nmot/5))+1:(5*(Nmot/5)))>=30));
-            summusc1spikes([1,5])=sum(find(v_mot((5*(Nmot/5))+1:end)>=30));
-            maxmusclspikes = max(summusc1spikes);
+           summusc1spikes(1,1)=size(find(motFirings(:,2)<(Nmot/5)),1);
+            summusc1spikes(1,2)=size(find(motFirings(:,2)>(Nmot/5)+1 & motFirings(:,2)<2*(Nmot/5)),1);
+            summusc1spikes(1,3)=size(find(motFirings(:,2)>2*(Nmot/5)+1 & motFirings(:,2)<3*(Nmot/5)),1);
+            summusc1spikes(1,4)=size(find(motFirings(:,2)>3*(Nmot/5)+1 & motFirings(:,2)<4*(Nmot/5)),1);
+            summusc1spikes(1,5)=size(find(motFirings(:,2)>4*(Nmot/5)+1),1);
+            maxmusclspikes = find(summusc1spikes(1,:)==max(summusc1spikes(1,:)));
             %Error checking (if groups spike same amount)
             if maxmusclspikes == 0
             wta = 0;
             else
-            wta = find(summusc1spikes == maxmusclspikes);
+            wta = maxmusclspikes
             end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
                 f = 5*wta;
+                f = datasample(f,1);
                 xshift = 120;
                 record(macRec);
                 %Iterate
+                tic
                 for k = 1:100
                     pos = round(25*sin(k*f*((pi)/180))+xshift);
                     %Error Check on pos
@@ -266,19 +266,20 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                         pos = 1;
                     end
                     ard.servoWrite(9,pos);
-                    pause(0.03);
+                    rtd = toc;
+                    pause(0.03-rtd); %include rtd with: pause(0.03-rtd);
+                    tic
+                    timeInfo(2,k)=rtd; %collect real time difference values during movement
                 end
                 stop(macRec);
+                %Move arm to neutral position
+                ard.servoWrite(9,xshift);
                 %Determine Reward
                 micData = getaudiodata(macRec, 'int16');
                 micRMS = sqrt(mean(micData.^2));
                 trialInfo(2,sec) = f;
-                trialInfo(1,sec) = micRMS; 
+                trialInfo(1,sec) = micRMS;
                 trialInfo(4,sec) = targetRMS*thresh;
-                %debugging timing issues
-                timeInfo(1,sec) = size(micData,1);
-                timeInfo(2,sec) = tic;
-
                 fprintf('Frequency: %f\n',trialInfo(2,sec))
                 %fprintf('X-Shift: %f\n',xshift)
                 fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
