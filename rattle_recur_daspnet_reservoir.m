@@ -142,7 +142,7 @@ ard.servoAttach(9);
 %Microphone Initialization
 %Use audiodevinfo(1,:) to figure out ID to use.
 %Can use audiodevinfo(1,44100,16,1) to auto find a working ID
-macRec = audiorecorder(44100,16,1,1);
+macRec = audiorecorder(44100,16,1,0);
 if sec==0
     %Determine Teacher RMS
     %targetRMS= teacher()
@@ -248,7 +248,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
             if maxmusclspikes == 0
             wta = 0;
             else
-            wta = maxmusclspikes
+            wta = maxmusclspikes;
             end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
                 f = 5*wta;

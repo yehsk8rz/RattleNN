@@ -1,7 +1,7 @@
-newT = 300
+newT = 400
 %Plot Yoked Histogram of frequencies
 for h = 1:5
-    load(['rattle_daspnet_reservoir_run',num2str(h),'_yoke.mat']);
+    load(['rattle_recur_daspnet_reservoir_run',num2str(h),'_yoke.mat']);
     fhist(1,((h*newT+1)-newT):(h*newT))=trialInfo(2,:);
 end
 figure(1)
@@ -11,7 +11,7 @@ xlabel('Frequency')
 ylabel('Occurences')
 %Plot Yoked Histogram of RMS
 for h = 1:5
-    load(['rattle_daspnet_reservoir_run',num2str(h),'_yoke.mat']);
+    load(['rattle_recur_daspnet_reservoir_run',num2str(h),'_yoke.mat']);
     RMShist(1,((h*newT+1)-newT):(h*newT))=trialInfo(1,:);
 end
 figure(2)
@@ -22,7 +22,7 @@ ylabel('Occurences')
 
 %Plot Histogram of frequencies
 for h = 1:5
-    load(['rattle_daspnet_reservoir_run',num2str(h),'.mat']);
+    load(['rattle_recur_daspnet_reservoir_run',num2str(h),'.mat']);
     fhist(1,((h*newT+1)-newT):(h*newT))=trialInfo(2,:);
 end
 figure(3)
@@ -32,7 +32,7 @@ xlabel('Frequency')
 ylabel('Occurences')
 %Plot Histogram of RMS
 for h = 1:5
-    load(['rattle_daspnet_reservoir_run',num2str(h),'.mat']);
+    load(['rattle_recur_daspnet_reservoir_run',num2str(h),'.mat']);
     RMShist(1,((h*newT+1)-newT):(h*newT))=trialInfo(1,:);
 end
 figure(4)
