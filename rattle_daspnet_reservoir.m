@@ -1,29 +1,21 @@
-function [] = rattle_daspnet_reservoir(id,newT,reinforcer,outInd,yoke,plotOn)
-% RATTLE_DASPNET_RESERVOIR Neural network model of the development of reduplicated rattle shaking in human infancy.
-%
-% Modification of Izhikevich's (2007 Cerebral Cortex) daspnet.m and of a previous model described in Warlaumont (2012, 2013 ICDL-EpiRob).
-%
-% For further reading:
-%
-% Warlaumont A.S. (2012) Salience-based reinforcement of a spiking neural network leads to increased syllable production.
-% Proceedings of the 2013 IEEE Third Joint International Conference on Development and Learning and Epigenetic Robotics (ICDL). doi: 10.1109/DevLrn.2013.6652547
-%
-% Izhikevich E.M. (2007) Solving the Distal Reward Problem through Linkage of STDP and Dopamine Signaling. Cerebral Cortex. doi: 10.1093/cercor/bhl152
+function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,motControl,outInd,yoke,plotOn)
+% RATTLE_WTA_DASPNET_RESERVOIR Neural network model of the development of reduplicated rattle shaking in human infancy.
+% This version of the code uses a "Winner Takes All" approach to frequency selection of a given action (sine movement).
 %
 % Description of Input Arguments:
-% id % Unique identifier for this simulation. Must not contain white space.
-% newT % Time experiment is to run in seconds. Can specify new times (longer or shorter)
-% for experimental runs by changing this value when a simulation is restarted.
-% reinforcer % Type of reinforcement. Can be 'human', 'relhisal', or 'range'.
-% outInd % Index of reservoir neurons that project to motor neurons. Length of this vector must be even. Recommended vector is 1:100
-% muscscale % Scales activation sent to Praat. Recommended value is 4
-% yoke % Indicates whether to run an experiment or yoked control simulation. Set to 'false' to run a regular simulation.
-% Set to 'true' to run a yoked control. There must alread have been a simulation of the same name run with its
-% data on the MATLAB path for the simulation to yoke to.
-% plotOn % Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
+% id            Unique identifier for this simulation. Must not contain white space.
+% newT          Time experiment is to run in seconds. Can specify new times (longer or shorter)
+%               for experimental runs by changing this value when a simulation is restarted.
+% reinforcer    Type of reinforcement. Can be 'microphone'.
+% outInd        Index of reservoir neurons that project to motor neurons. Length of this vector must be even. Recommended vector is 1:100
+% muscscale     Scales activation sent to Praat. Recommended value is 4
+% yoke          Indicates whether to run an experiment or yoked control simulation. Set to 'false' to run a regular simulation.
+%               Set to 'true' to run a yoked control. There must alread have been a simulation of the same name run with its
+%               data on the MATLAB path for the simulation to yoke to.
+% plotOn        Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
 %
 % Example of Use:
-% rattle_daspnet_reservoir('trial',300,'microphone',1:100,'false',1);
+% rattle_WTA_daspnet_reservoir('run',300,'microphone','WTA',1:100,'false',1);
 %
 % Authors: Forrest Yeh and Anne S. Warlaumont
 % Cognitive and Information Sciences
@@ -90,7 +82,7 @@ else
     M=100; % number of synapses per neuron
     D=1; % maximal conduction delay
     % excitatory neurons % inhibitory neurons % total number
-    Ne=800; Ni=200; N=Ne+Ni;
+    Ne=800; Ni=200; N=Ne+Ni; %usually, Ne = 800, Ni = 200
     Nout = length(outInd);
     Nmot=Nout; % Number of motor neurons that the output neurons in the reservoir connect to.
     a=[0.02*ones(Ne,1); 0.1*ones(Ni,1)]; % Sets time scales of membrane recovery variable.
@@ -118,8 +110,8 @@ else
     firings=[-D 0]; % All reservoir neuron firings for the current second.
     outFirings=[-D 0]; % Output neuron spike timings.
     motFirings=[-D 0]; % Motor neuron spike timings.
+    summusc1spikes = zeros(1,5);
     DA=0; % Level of dopamine above the baseline.
-    muscsmooth=100; % Spike train data sent to Praat is smoothed by doing a 100 ms moving average.
     sec=0;
     rewcount=0;
     rew=[];
@@ -127,9 +119,7 @@ else
     v_mot_hist={};
     %sout_hist={};
     trialInfo = NaN(4,newT);
-    timeInfo = NaN(2,newT); %used when measuring real-time for each movement
     targetRMS = NaN;
-    rtd = 0; %Real Time Difference
     
     % Variables for saving data.
     vlstsec = 0; % Record of when v_mot_hist was last saved.
@@ -143,19 +133,17 @@ end
 
 %Arduino and Microphone Initialization
 global ard macRec
-if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))  %1411 for FYmbp, 1421 for EOCmac
-    delete(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))   %1411 for FYmbp, 1421 for EOCmac
+if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
+    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
 end
-ard = arduino('/dev/tty.usbmodem1421'); %1411 for FYmbp, 1421 for EOCmac
+ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
-%Microphone Initialization
 %Use audiodevinfo(1,:) to figure out ID to use.
 %Can use audiodevinfo(1,44100,16,1) to auto find a working ID (Typically 1
-%for FYmbp, and 0 for EOCmac
+%for FYmbp 1 , and 0 for EOCmac
 macRec = audiorecorder(44100,16,1,0);
+
 if sec==0
-    %Determine Teacher RMS
-    %targetRMS= teacher()
     thresh = 1;
     rewFract = 0;
     fprintf('%s%f\n','Threshold: ',thresh)
@@ -235,61 +223,59 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end;
         % Every testint seconds, use the motor neuron spikes to generate a sound.
         if (mod(sec,testint)==0)
-            firedmusc1pos=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
-            firedmusc1neg=find(v_mot(Nmot/2+1:end)>=30);
-            summusc1posspikes(t)=size(firedmusc1pos,1); % Sum the spikes at each timestep across the set of motor neurons.
-            summusc1negspikes(t)=size(firedmusc1neg,1);
-            if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
-                % Create a moving average of the summed spikes.
-                %                 for smootht=muscsmooth:1000
-                %                     smoothmuscpos(smootht,sec)=mean(summusc1posspikes((smootht-muscsmooth+1):smootht));
-                %                     smoothmuscneg(smootht,sec)=mean(summusc1negspikes((smootht-muscsmooth+1):smootht));
-                %                     smoothmusc(smootht,sec)=muscscale*(smoothmuscpos(smootht,sec)-smoothmuscneg(smootht,sec));
-                %                 end
-                % History of total motor neuron spikes for each second.
-                %summusc1posspikeshist(sec)=sum(summusc1posspikes);
-                %summusc1negspikeshist(sec)=sum(summusc1negspikes);
-                meanf = 7;
-                scale = 10;
-                %900ms
-                f = ((sum(summusc1posspikes(101:1000))*0)+(sum(summusc1negspikes(101:1000))*(meanf*2)))/(sum(summusc1posspikes(101:1000))+sum(summusc1negspikes(101:1000)));
-                %100ms
-                %f = ((sum(summusc1posspikes(901:1000))*0)+(sum(summusc1negspikes(901:1000))*(meanf*2)))/(sum(summusc1posspikes(901:1000))+sum(summusc1negspikes(901:1000)));
-                f =  f*scale-(meanf*scale)+meanf;
-                xshift = 90;
-                
-                record(macRec);
-                %Iterate
-                tic
-                for k = 1:100
-                    pos = round(25*sin(k*f*((pi)/180))+xshift);
-                    %Error Check on pos
-                    if pos > 179
-                        pos = 179;
-                    elseif pos < 1
-                        pos = 1;
-                    end
-                    ard.servoWrite(9,pos);
-                    rtd = toc;
-                    pause(0.03-rtd); %include rtd with: pause(0.03-rtd);
-                    tic
-                    timeInfo(2,k)=rtd; %collect real time difference values during movement
+            if strcmp(motControl,'WTA')
+                summusc1spikes(1,1)=size(find(motFirings(:,2)<(Nmot/5)),1);
+                summusc1spikes(1,2)=size(find(motFirings(:,2)>(Nmot/5)+1 & motFirings(:,2)<2*(Nmot/5)),1);
+                summusc1spikes(1,3)=size(find(motFirings(:,2)>2*(Nmot/5)+1 & motFirings(:,2)<3*(Nmot/5)),1);
+                summusc1spikes(1,4)=size(find(motFirings(:,2)>3*(Nmot/5)+1 & motFirings(:,2)<4*(Nmot/5)),1);
+                summusc1spikes(1,5)=size(find(motFirings(:,2)>4*(Nmot/5)+1),1);
+                maxmusclspikes = find(summusc1spikes(1,:)==max(summusc1spikes(1,:)));
+                %Error checking (if groups spike same amount)
+                if maxmusclspikes == 0
+                    wta = 0;
+                else
+                    wta = maxmusclspikes;
                 end
-                stop(macRec);
-                timeInfo(1,sec) = mean(timeInfo(2,100)); %store mean value of rtd for that movement
-                %move arm to neutral position
-                ard.servoWrite(9,xshift);
+            end
+            if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
+                if strcmp(motControl,'WTA' || 'f')
+                    f = 5*wta;
+                    f = datasample(f,1);
+                    xshift = 120;
+                    record(macRec);
+                    %Iterate
+                    tic
+                    for k = 1:100
+                        pos = round(25*sin(k*f*((pi)/180))+xshift);
+                        %Error Check on pos
+                        if pos > 179
+                            pos = 179;
+                        elseif pos < 1
+                            pos = 1;
+                        end
+                        ard.servoWrite(9,pos);
+                        rtd = toc; %Real Time Difference
+                        pause(0.03-rtd);
+                        tic
+                        timeInfo(2,k)=rtd; %collect real time difference values during movement
+                    end
+                    stop(macRec);
+                    timeInfo(1,sec) = mean(timeInfo(2,100)); %store mean value of rtd for that movement
+                    
+                    %Move arm to neutral position
+                    ard.servoWrite(9,xshift);
+                    
+                    %Determine Reward
+                    micData = getaudiodata(macRec, 'int16');
+                    micRMS = sqrt(mean(micData.^2));
+                    trialInfo(2,sec) = f;
+                    trialInfo(1,sec) = micRMS;
+                    trialInfo(4,sec) = targetRMS*thresh;
+                    fprintf('Frequency: %f\n',trialInfo(2,sec))
+                    fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
+                    fprintf('Threshold RMS: %f\n',trialInfo(4,sec))
+                end
                 
-                %Determine Reward
-                micData = getaudiodata(macRec, 'int16');
-                micRMS = sqrt(mean(micData.^2));
-                trialInfo(2,sec) = f;
-                trialInfo(1,sec) = micRMS; %Changed from micRMS to size(micData) to see if the sound files are getting longer
-                trialInfo(4,sec) = targetRMS*thresh;
-                fprintf('Frequency: %f\n',trialInfo(2,sec))
-                %fprintf('X-Shift: %f\n',xshift)
-                fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
-                fprintf('Threshold RMS: %f\n',trialInfo(4,sec))
                 % Assign Reward.
                 if strcmp(yoke,'true')
                     % Yoked controls use reward assigned from the
@@ -301,8 +287,8 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                     end
                 elseif strcmp(reinforcer, 'microphone')
                     if sec > 10
-                        targetRMS = mean(trialInfo(1,sec-10:sec-1))
-                        if micRMS > targetRMS
+                        targetRMS = mean(trialInfo(1,sec-10:sec-1));
+                        if micRMS > targetRMS && f~=0
                             rew=[rew,sec*1000+t];
                             rewcount= rewcount+1;
                             fprintf(2,'%s\n','Reward has been given ')
@@ -396,10 +382,6 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
     %Every 100 sec Re-assess Teacher & Threshold
     if mod(sec,100) ==0
         if strcmp(reinforcer, 'microphone')
-            %display('Reassessing Target RMS...')
-            %targetRMS = teacher();
-            %fprintf('%s%f\n','New Target RMS: ',targetRMS)
-            %Re-assess Threshold
             rewFract = sum(trialInfo(3,(sec-SAVINTV+1):sec))/SAVINTV;
             if rewFract > .8
                 thresh = thresh+.1;
@@ -407,11 +389,13 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
             fprintf('%s%f\n', 'New Threshold: ',thresh)
         end
     end
+    
     % Every so often, save the workspace in case the simulation is interupted all data is not lost.
     if mod(sec,SAVINTV*testint)==0 || sec==T
         display('Data Saving..... Do not exit program.');
         save(workspaceFilename, '-regexp', '^(?!(v_mot_hist)$).');
     end
+    
     % Writing motor neuron membrane potentials to a single large text file.
     if mod(sec,SAVINTV*testint)==0 || sec==T
         if strcmp(yoke, 'false')
@@ -439,27 +423,29 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         end
         fclose(vmhist_fid);
         vlstsec = sec; % Latest second of saving.
-        %print time when simulation ends
+        
+        %Print time when simulation ends
         cOUT = clock % when simulation ends
         RRT = (((cOUT(4)-cIN(4))*60))+(cOUT(5)-cIN(5)) %Real Run-time (Min)
+        
         save(workspaceFilename, 'vlstsec', '-append'); % Saving the value of the last written second in case the simulation is terminated and restarted.
         display('Data Saved.');
-        
     end
-    
+end
 end
 
-end
-
+%Call teacher() to set variable targetRMS to ideal sine wave
 function [targetRMS] = teacher()
 global ard macRec
 record(macRec);
 %Iterate
+tic
 for t = 1:100
     pos = round(25*sin(t*(7*(pi)/180))+120);
     posT(1,t) = pos;
     ard.servoWrite(9,pos);
-    pause(0.03);
+    rtd = toc;
+    pause(0.03-rtd);
 end
 stop(macRec);
 %Determine target Root Mean Square
