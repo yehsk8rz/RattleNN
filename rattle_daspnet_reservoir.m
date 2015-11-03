@@ -1,12 +1,22 @@
-function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,motControl,outInd,yoke,plotOn)
+function [] = rattle_daspnet_reservoir(id,newT,reinforcer,motControl,outInd,yoke,plotOn)
 % RATTLE_WTA_DASPNET_RESERVOIR Neural network model of the development of reduplicated rattle shaking in human infancy.
-% This version of the code uses a "Winner Takes All" approach to frequency selection of a given action (sine movement).
 %
 % Description of Input Arguments:
 % id            Unique identifier for this simulation. Must not contain white space.
 % newT          Time experiment is to run in seconds. Can specify new times (longer or shorter)
 %               for experimental runs by changing this value when a simulation is restarted.
-% reinforcer    Type of reinforcement. Can be 'microphone'.
+% reinforcer    Type of reinforcement. Can be 'microphone'.('human' is also
+%               mentioned)
+% motControl:
+%           WTA:
+%               This version uses a "Winner Takes All" approach to selecting from a
+%               frequency bank to control sine movement
+%           servo:
+%               This version takes a simpler approach based on Georgopoulos et al.
+%               population encoding of precise servo position
+%           fsine:
+%               This verson sums motor outpus spikes for a second to determine a sine
+%               wave frequency via weighted sum.
 % outInd        Index of reservoir neurons that project to motor neurons. Length of this vector must be even. Recommended vector is 1:100
 % muscscale     Scales activation sent to Praat. Recommended value is 4
 % yoke          Indicates whether to run an experiment or yoked control simulation. Set to 'false' to run a regular simulation.
@@ -15,7 +25,7 @@ function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,motControl,outInd,
 % plotOn        Enables plots of several simulation parameters. Set to 0 to disable plots, and 1 to enable.
 %
 % Example of Use:
-% rattle_WTA_daspnet_reservoir('run',300,'microphone','WTA',1:100,'false',1);
+% rattle_daspnet_reservoir('run',300,'microphone','WTA',1:100,'false',1);
 %
 % Authors: Forrest Yeh and Anne S. Warlaumont
 % Cognitive and Information Sciences
@@ -29,6 +39,7 @@ function [] = rattle_WTA_daspnet_reservoir(id,newT,reinforcer,motControl,outInd,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 format shortg
 cIN = clock;
+
 rng shuffle;
 % Initialization.
 DAinc = 1; % Amount of dopamine given during reward.
@@ -123,6 +134,7 @@ else
     
     % Variables for saving data.
     vlstsec = 0; % Record of when v_mot_hist was last saved.
+    
     switch reinforcer % Sets how often to save data.
         case 'human'
             SAVINTV = 10;
@@ -139,9 +151,12 @@ end
 ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
 %Use audiodevinfo(1,:) to figure out ID to use.
-%Can use audiodevinfo(1,44100,16,1) to auto find a working ID (Typically 1
-%for FYmbp 1 , and 0 for EOCmac
+%Can also use audiodevinfo(1,44100,16,1) to auto find a working ID
+%(Typically 1 for FYmbp 1 , and 0 for EOCmac)
 macRec = audiorecorder(44100,16,1,0);
+pos = 90;
+micRMS = 0;
+ard.servoWrite(9,pos);
 
 if sec==0
     thresh = 1;
@@ -168,6 +183,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
     % How long a yoked control could be run. Assumes rewards are
     % assigned for the current second only.
     yokedruntime = sec;
+    
     for t=1:1000 % Millisecond timesteps
         %Random Thalamic Input.
         I=13*(rand(N,1)-0.5);
@@ -236,11 +252,44 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 else
                     wta = maxmusclspikes;
                 end
+                
+            elseif strcmp(motControl,'fsine')
+                firedmusc1pos=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
+                firedmusc1neg=find(v_mot(Nmot/2+1:end)>=30);
+                summusc1posspikes(t)=size(firedmusc1pos,1); % Sum the spikes at each timestep across the set of motor neurons.
+                summusc1negspikes(t)=size(firedmusc1neg,1);
+                
+            elseif strcmp(motControl,'servo')
+                tic %should be placed at beginning of each ms iteration to make this operate in reall time with real network time
+                firedmusc1pos=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
+                firedmusc1neg=find(v_mot(Nmot/2+1:end)>=30);
+                pos = pos + 20*(size(firedmusc1pos,1)-size(firedmusc1neg,1));
+                record(macRec);
+                %Error Check on pos
+                if pos > 179
+                    pos = 179;
+                elseif pos < 1
+                    pos = 1;
+                end
+                ard.servoWrite(9,pos);
+                rtd = toc; %Real Time Difference
+                pause(0.01-rtd);
+                stop(macRec);
+                micData = getaudiodata(macRec, 'int16');
+                micRMS = (micRMS+(sqrt(mean(micData.^2))))/2;
+                
             end
             if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
-                if strcmp(motControl,'WTA' || 'f')
+                if strcmp(motControl,'WTA')
                     f = 5*wta;
                     f = datasample(f,1);
+                elseif strcmp(motControl,'fsine')
+                    meanf = 7;
+                    scale = 10;
+                    f = ((sum(summusc1posspikes(101:1000))*0)+(sum(summusc1negspikes(101:1000))*(meanf*2)))/(sum(summusc1posspikes(101:1000))+sum(summusc1negspikes(101:1000)));
+                    f =  f*scale-(meanf*scale)+meanf;
+                end
+                if strcmp(motControl,'WTA') || strcmp(motControl,'fsine')
                     xshift = 120;
                     record(macRec);
                     %Iterate
@@ -274,6 +323,15 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                     fprintf('Frequency: %f\n',trialInfo(2,sec))
                     fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
                     fprintf('Threshold RMS: %f\n',trialInfo(4,sec))
+                end
+                
+                if strcmp(motControl,'servo')
+                trialInfo(2,sec) = pos;
+                trialInfo(1,sec) = micRMS;
+                trialInfo(4,sec) = targetRMS*thresh;
+                fprintf('Servo Position: %f\n',trialInfo(2,sec))
+                fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
+                fprintf('Threshold RMS: %f\n',trialInfo(4,sec))
                 end
                 
                 % Assign Reward.
@@ -379,9 +437,9 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
     ind_mot = find(motFirings(:,1) > 1001-D);
     motFirings=[-D 0;motFirings(ind_mot,1)-1000,motFirings(ind_mot,2)];
     
-    %Every 100 sec Re-assess Teacher & Threshold
+    %Every 100 sec Re-assess Threshold
     if mod(sec,100) ==0
-        if strcmp(reinforcer, 'microphone')
+        if strcmp(reinforcer, 'human')
             rewFract = sum(trialInfo(3,(sec-SAVINTV+1):sec))/SAVINTV;
             if rewFract > .8
                 thresh = thresh+.1;
