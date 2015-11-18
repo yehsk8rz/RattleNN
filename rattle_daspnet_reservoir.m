@@ -125,14 +125,13 @@ else
     firings=[-D 0]; % All reservoir neuron firings for the current second.
     outFirings=[-D 0]; % Output neuron spike timings.
     motFirings=[-D 0]; % Motor neuron spike timings.
-    summusc1spikes = zeros(1,5);
     DA=0; % Level of dopamine above the baseline.
     sec=0;
     rewcount=0;
     rew=[];
+    
     % History variables.
     v_mot_hist={};
-    %sout_hist={};
     trialInfo = NaN(4,newT);
     targetRMS = NaN;
     
@@ -154,10 +153,7 @@ if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
 end
 ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
-%Use audiodevinfo(1,:) to figure out ID to use.
-%Can also use audiodevinfo(1,44100,16,1) to auto find a working ID
-%(Typically 1 for FYmbp 1 , and 0 for EOCmac)
-macRec = audiorecorder(44100,16,1,0);
+macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
 pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
@@ -170,18 +166,22 @@ end
 T=newT;
 clearvars newT;
 
-% Special initializations for motor controls.
-if strcmp(motControl,'WTA') || strcmp(motControl,'fsine')
-    phase = 0
-    
-else if strcmp(motControl,'ifourier')
-        fmax = 10;  %Set the highest frequency
-        fmin = 5;   %Set the Lowest frequency
-        fxns = 2;   %Set the number of constructed waves for inverse fourier
-        phase = randi(180,1,Nmot);
-        f = fmin + (fmax-fmin).*rand(Nmot,1);
+    % Special initializations for motor controls.
+    if strcmp(motControl,'WTA') || strcmp(motControl,'fsine')
+        phase = 0
+        sumWTAspikes = zeros(1,5);
+
+    elseif strcmp(motControl,'ifourier')
+            fmax = 25;  %Set the highest frequency
+            fmin = 0;   %Set the lowest frequency
+            xshift = 100;
+            phase = randi(180,1,Nmot);  %Establish phase values for motor neurons
+            f = fmin + (fmax-fmin).*rand(1,Nmot);   %Establish frequency values for motor neurons
+            amplitude = zeros(T,Nmot);  %Determines weight of a given motor neuron's function
+            ampscale = 12;   %Scaling factor for amplitude
+            time = (30:30:3000); %starting at 30ms and going to 3 seconds, incriments of 30ms, the time alloted to one degree of change
+            %time = (1:100);
     end
-end
     
     % Special initializations for a yoked control.
     if strcmp(yoke,'true')
@@ -254,15 +254,16 @@ end
                 sout=sout./(mean(mean(sout)));
                 sd=0.99*sd; % Decrease in synapse's eligibility to change over time.
             end;
+            
             % Every testint seconds, use the motor neuron spikes to generate a sound.
             if (mod(sec,testint)==0)
                 if strcmp(motControl,'WTA')
-                    summusc1spikes(1,1)=size(find(motFirings(:,2)<(Nmot/5)),1);
-                    summusc1spikes(1,2)=size(find(motFirings(:,2)>(Nmot/5)+1 & motFirings(:,2)<2*(Nmot/5)),1);
-                    summusc1spikes(1,3)=size(find(motFirings(:,2)>2*(Nmot/5)+1 & motFirings(:,2)<3*(Nmot/5)),1);
-                    summusc1spikes(1,4)=size(find(motFirings(:,2)>3*(Nmot/5)+1 & motFirings(:,2)<4*(Nmot/5)),1);
-                    summusc1spikes(1,5)=size(find(motFirings(:,2)>4*(Nmot/5)+1),1);
-                    maxmusclspikes = find(summusc1spikes(1,:)==max(summusc1spikes(1,:)));
+                    sumWTAspikes(1,1)=size(find(motFirings(:,2)<(Nmot/5)),1);
+                    sumWTAspikes(1,2)=size(find(motFirings(:,2)>(Nmot/5)+1 & motFirings(:,2)<2*(Nmot/5)),1);
+                    sumWTAspikes(1,3)=size(find(motFirings(:,2)>2*(Nmot/5)+1 & motFirings(:,2)<3*(Nmot/5)),1);
+                    sumWTAspikes(1,4)=size(find(motFirings(:,2)>3*(Nmot/5)+1 & motFirings(:,2)<4*(Nmot/5)),1);
+                    sumWTAspikes(1,5)=size(find(motFirings(:,2)>4*(Nmot/5)+1),1);
+                    maxmusclspikes = find(sumWTAspikes(1,:)==max(sumWTAspikes(1,:)));
                     %Error checking (if groups spike same amount)
                     if maxmusclspikes == 0
                         wta = 0;
@@ -295,28 +296,41 @@ end
                     micData = getaudiodata(macRec, 'int16');
                     micRMS = (micRMS+(sqrt(mean(micData.^2))))/2;
                     
-                elseif strcmp(motControl, 'ifourier') && any(v_mot>=30)
-                    for i=1:fxns
-                        firedphase(i,:)= find(v_mot(1:Nmot)>=30);
-                        firedf = firedphase
-                        sumphase(t)=size(firedphase,i);
-                        sumf(t)=size(firedf,i);     
-                    end
+                elseif strcmp(motControl, 'ifourier')
+                        fired_ifourier= find(v_mot(1:Nmot)>=30); %Find out which motor output neurons fired
+                        if any(fired_ifourier)
+                            for i = 1:size(fired_ifourier)
+                            amplitude(sec,fired_ifourier(i,1))= amplitude(sec,fired_ifourier(i,1))+1; 
+                            end  
+                        end
                 end
+                
                 if t==1000 % Based on the 1 s timeseries of smoothed summed motor neuron spikes, generate a sound.
                     if strcmp(motControl,'WTA')
                         f = 5*wta;
                         f = datasample(f,1);
+                        
                     elseif strcmp(motControl,'fsine')
                         meanf = 7;
                         scale = 10;
                         f = ((sum(summusc1posspikes(101:1000))*0)+(sum(summusc1negspikes(101:1000))*(meanf*2)))/(sum(summusc1posspikes(101:1000))+sum(summusc1negspikes(101:1000)));
                         f =  f*scale-(meanf*scale)+meanf;
+                        
+                    elseif strcmp(motControl,'ifourier')
+                        for i = 1:Nmot
+                        posArr(sec,i) = round(ampscale*amplitude(sec,i)*sin(f(1,i)*time(1,i)*((pi)/180)+phase(1,i))+xshift);
+                        end
+                        %overlay posArr plots
+                        plot(time,posArr(sec,:))
+                        xlabel('time')
+                        ylabel('position')
+                        title('Overlaid posArr Plots')
+                        hold on
                     end
+                    
                     if strcmp(motControl,'WTA') || strcmp(motControl,'fsine')
                         xshift = 120;
                         record(macRec);
-                        %Iterate
                         tic
                         for k = 1:100
                             pos = round(25*sin(k*f*((pi)/180)+phase)+xshift);
@@ -357,6 +371,36 @@ end
                         fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
                         fprintf('Threshold RMS: %f\n',trialInfo(4,sec))
                     end
+                    if strcmp(motControl,'ifourier')
+                        record(macRec);
+                        tic
+                        for k = 1:size(posArr(sec,:),2)
+                            %Error Checking on posArr
+                            if posArr(sec,k) > 179
+                                posArr(sec,k) = 179;
+                            elseif posArr(sec,k) < 1
+                                posArr(sec,k) = 1;
+                            end
+                            ard.servoWrite(9,posArr(sec,k));
+                            rtd = toc; %Real Time difference
+                            pause(0.03-rtd);
+                            tic
+                        end
+                        stop(macRec);
+                        
+                        %Move arm to neutral position
+                        ard.servoWrite(9,xshift);
+                        
+                        %Determine Reward
+                        micData = getaudiodata(macRec, 'int16');
+                        micRMS = sqrt(mean(micData.^2));
+                        trialInfo(2,sec) = NaN;
+                        trialInfo(1,sec) = micRMS;
+                        trialInfo(4,sec) = targetRMS*thresh;
+                        fprintf('Servo Position: %f\n',trialInfo(2,sec))
+                        fprintf('Root Mean Square: %f\n',trialInfo(1,sec))
+                        fprintf('Threshold RMS: %f\n',trialInfo(4,sec))
+                    end
                     
                     % Assign Reward.
                     if strcmp(yoke,'true')
@@ -370,7 +414,7 @@ end
                     elseif strcmp(reinforcer, 'microphone')
                         if sec > 10
                             targetRMS = mean(trialInfo(1,sec-10:sec-1));
-                            if micRMS > targetRMS && f~=0
+                            if micRMS > targetRMS
                                 rew=[rew,sec*1000+t];
                                 rewcount= rewcount+1;
                                 fprintf(2,'%s\n','Reward has been given ')
