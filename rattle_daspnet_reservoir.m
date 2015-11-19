@@ -148,12 +148,12 @@ end
 
 %Arduino and Microphone Initialization
 global ard macRec
-if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
-    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
+if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))
+    delete(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))
 end
-ard = arduino('/dev/tty.usbmodem1411');
+ard = arduino('/dev/tty.usbmodem1421');
 ard.servoAttach(9);
-macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
+macRec = audiorecorder(44100,16,1,1);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
 pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
@@ -173,12 +173,12 @@ clearvars newT;
 
     elseif strcmp(motControl,'ifourier')
             fmax = 25;  %Set the highest frequency
-            fmin = 0;   %Set the lowest frequency
-            xshift = 100;
-            phase = randi(180,1,Nmot);  %Establish phase values for motor neurons
-            f = fmin + (fmax-fmin).*rand(1,Nmot);   %Establish frequency values for motor neurons
-            amplitude = zeros(T,Nmot);  %Determines weight of a given motor neuron's function
-            ampscale = 12;   %Scaling factor for amplitude
+            fmin = 1;   %Set the lowest frequency
+            xshift = 90;
+            phase = 360*rand(Nmot,1);  %Establish phase values for motor neurons
+            f = fmin + (fmax-fmin).*rand(Nmot,1);   %Establish frequency values for motor neurons
+            amplitude = zeros(Nmot,1);  %Determines weight of a given motor neuron's function
+            ampscale = 1;   %Scaling factor for amplitude
             time = (30:30:3000); %starting at 30ms and going to 3 seconds, incriments of 30ms, the time alloted to one degree of change
             %time = (1:100);
     end
@@ -300,7 +300,7 @@ clearvars newT;
                         fired_ifourier= find(v_mot(1:Nmot)>=30); %Find out which motor output neurons fired
                         if any(fired_ifourier)
                             for i = 1:size(fired_ifourier)
-                            amplitude(sec,fired_ifourier(i,1))= amplitude(sec,fired_ifourier(i,1))+1; 
+                            amplitude(fired_ifourier(i))= amplitude(fired_ifourier(i))+1; 
                             end  
                         end
                 end
@@ -317,15 +317,16 @@ clearvars newT;
                         f =  f*scale-(meanf*scale)+meanf;
                         
                     elseif strcmp(motControl,'ifourier')
-                        for i = 1:Nmot
-                        posArr(sec,i) = round(ampscale*amplitude(sec,i)*sin(f(1,i)*time(1,i)*((pi)/180)+phase(1,i))+xshift);
+                        for time = 1:100
+                        posArr(sec,time) = sum(ampscale*amplitude.*sin((f*time + phase) * pi / 180))+xshift;
                         end
+                        amplitude = zeros(Nmot,1);
                         %overlay posArr plots
-                        plot(time,posArr(sec,:))
+                        plot(posArr(sec,:))
                         xlabel('time')
                         ylabel('position')
                         title('Overlaid posArr Plots')
-                        hold on
+                        %hold on
                     end
                     
                     if strcmp(motControl,'WTA') || strcmp(motControl,'fsine')
@@ -374,14 +375,14 @@ clearvars newT;
                     if strcmp(motControl,'ifourier')
                         record(macRec);
                         tic
-                        for k = 1:size(posArr(sec,:),2)
+                        for k = 1:size(posArr,2)
                             %Error Checking on posArr
                             if posArr(sec,k) > 179
                                 posArr(sec,k) = 179;
                             elseif posArr(sec,k) < 1
                                 posArr(sec,k) = 1;
                             end
-                            ard.servoWrite(9,posArr(sec,k));
+                            ard.servoWrite(9,round(posArr(sec,k)));
                             rtd = toc; %Real Time difference
                             pause(0.03-rtd);
                             tic
