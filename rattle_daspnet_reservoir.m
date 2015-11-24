@@ -148,12 +148,12 @@ end
 
 %Arduino and Microphone Initialization
 global ard macRec
-if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))
-    delete(instrfind({'Port'},{'/dev/tty.usbmodem1421'}))
+if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
+    delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
 end
-ard = arduino('/dev/tty.usbmodem1421');
+ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
-macRec = audiorecorder(44100,16,1,1);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
+macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
 pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
