@@ -11,8 +11,8 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)
 summary(rattlelm)
 
-qplot(sec,RMS,data=rattledata,main= "400s, 5 runs, recur/WTA 10-29", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)
-quartz.save("10-29_rattleresults.pdf",type="pdf")
+qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)
+quartz.save("11-18_300s_rattleresults.pdf",type="pdf")
 
-plot(rattledata$f,rattledata$RMS, main= "400s, 5 runs, recur/WTA 10-29", xlab="f",ylab="RMS")
-quartz.save("10-29_RMSvsf.pdf",type="pdf")
+plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, ifourier 11-18", xlab="f",ylab="RMS")
+quartz.save("11-18_300s_RMSvsf.pdf",type="pdf")
