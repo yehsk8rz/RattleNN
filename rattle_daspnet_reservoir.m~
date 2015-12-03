@@ -261,9 +261,9 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
             if strcmp(motControl,'WTA')
                     sumWTAspikes(1,1)=size(find(motFirings(:,2)<(Nmot/wtascale)),1);
                 for i= 2:wtascale
-                    sumWTAspikes(1,i)=size(find(motFirings(:,2)>(i-1)*round(Nmot/wtascale)+1 & motFirings(:,2)<i*round(Nmot/wtascale)),1);
+                    sumWTAspikes(1,i)=size(find(motFirings(:,2)>(i-1)*(Nmot/wtascale)+1 & motFirings(:,2)<i*(Nmot/wtascale)),1);
+                    sumWTAspikes(1,5)=size(find(motFirings(:,2)>4*(Nmot/wtascale)+1),1); 
                 end
-                sumWTAspikes(1,wtascale)=size(find(motFirings(:,2)>(wtascale-1)*(Nmot/wtascale)+1),1); 
                  maxmusclspikes = find(sumWTAspikes(1,:)==max(sumWTAspikes(1,:)));
                 %Error checking (if groups spike same amount)
                 if maxmusclspikes == 0
