@@ -174,11 +174,11 @@ clearvars newT;
     elseif strcmp(motControl,'ifourier')
             fmax = 25;  %Set the highest frequency
             fmin = 1;   %Set the lowest frequency
-            xshift = 90;
+            xshift = 1;
             phase = 360*rand(Nmot,1);  %Establish phase values for motor neurons
             f = fmin + (fmax-fmin).*rand(Nmot,1);   %Establish frequency values for motor neurons
             amplitude = zeros(Nmot,1);  %Determines weight of a given motor neuron's function
-            ampscale = .25;   %Scaling factor for amplitude
+            ampscale = 1;   %Scaling factor for amplitude
             time = (30:30:3000); %starting at 30ms and going to 3 seconds, incriments of 30ms, the time alloted to one degree of change
             %time = (1:100);
     end
