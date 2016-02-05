@@ -16,9 +16,9 @@ pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
 xshift = 90;
-phase = 1;
+phase = 0;
 maxHz = 10;
-minHz = 0.1;
+minHz = 1;
 fDiv = 0.1;
 %Create Frequency Sweep Array
 j = 1;
@@ -48,16 +48,30 @@ for m = 1:size(f,2)
         analogInfo(m,k) = ard.analogRead(1);
         digitalInfo(m,k) = pos;
         rtd = toc; %Real Time Difference
-        pause(0.03-rtd);
+        pause(0.027-rtd);
         tic
         rtdInfo(1,k)=rtd; %collect real time difference values during movement
     end
     stop(macRec);
     rtdInfo(2,m) = mean(rtdInfo(1,:)); %store mean value of rtd for that movement
     %Move arm to neutral position
-    ard.servoWrite(9,xshift);
+    pos = round(20*sin(f(1,m)*((pi)/180)+phase)+xshift);
+    ard.servoWrite(9,pos);
+    pause(2);
     %Determine Reward
     micData = getaudiodata(macRec, 'int16');
     micRMS = sqrt(mean(micData.^2));
     soundInfo(1,m) = micRMS;
 end
+figure(1)
+plot(soundInfo(1,:))
+title('soundInfo')
+xlabel('frequency/fDiv')
+ylabel('RMS')
+figure(2)
+title('Analog-Digital')
+plot(analogInfo-digitalInfo)
+figure(3)
+title('7Hz-AnalogInfo')
+plot(analogInfo(70,:))
+
