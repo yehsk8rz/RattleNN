@@ -154,7 +154,7 @@ end
 ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
 macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
-pos = 90;
+pos = 65;
 micRMS = 0;
 ard.servoWrite(9,pos);
 
