@@ -15,11 +15,11 @@ macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID 
 pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
-xshift = 90;
+xshift = 65;
 phase = 0;
-maxHz = 10;
-minHz = 1;
-fDiv = 0.1;
+maxHz = 50;
+minHz = 0;
+fDiv = .5;
 %Create Frequency Sweep Array
 j = 1;
 for i = minHz:fDiv:maxHz
@@ -37,7 +37,7 @@ for m = 1:size(f,2)
     record(macRec);
     tic
     for k = 1:100
-        pos = round(20*sin(k*f(1,m)*((pi)/180)+phase)+xshift);
+        pos = round(20*sin(k*f(1,m)*((pi)/180)+phase)+xshift); %%(digital:70:110) (analog:191:259)
         %Error Check on pos
         if pos > 179
             pos = 179;
@@ -64,14 +64,23 @@ for m = 1:size(f,2)
     soundInfo(1,m) = micRMS;
 end
 figure(1)
+subplot(2,2,1) 
 plot(soundInfo(1,:))
 title('soundInfo')
 xlabel('frequency/fDiv')
 ylabel('RMS')
-figure(2)
-title('Analog-Digital')
-plot(analogInfo-digitalInfo)
-figure(3)
-title('7Hz-AnalogInfo')
-plot(analogInfo(70,:))
-
+subplot(2,2,2)
+plot(analogInfo(10,:))
+title('10Hz-AnalogInfo')
+xlabel('Timestep')
+ylabel('analog value')
+subplot(2,2,3)
+plot(max(analogInfo)-min(analogInfo))
+title('Servo Stability')
+xlabel('timestep')
+ylabel('analog difference')
+subplot(2,2,4)
+plot(mean(analogInfo'))
+title('Mean Analog Values')
+xlabel('frequency')
+ylabel('analog value')
