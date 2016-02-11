@@ -17,27 +17,30 @@ micRMS = 0;
 ard.servoWrite(9,pos);
 xshift = 65;
 phase = 0;
-maxHz = 50;
-minHz = 0;
+maxHz = 20;
+minHz = 5;
 fDiv = .5;
 %Create Frequency Sweep Array
 j = 1;
 for i = minHz:fDiv:maxHz
-    f(1,j) = i;
+    f(j) = i;
     j=j+1;
 end
 
 %Arm movement
 %Preestablish arrays for speed:
-analogInfo = zeros(size(f,2),100);
-digitalInfo = zeros(size(f,2),100);
-rtdInfo = zeros(2,100);
+analogInfo = zeros(size(f,1),1000);
+digitalInfo = zeros(size(f,1),1000);
+%rtdInfo = zeros(2,100);
+t = zeros(size(f,1), 1000);
 
 for m = 1:size(f,2)
     record(macRec);
     tic
-    for k = 1:100
-        pos = round(20*sin(k*f(1,m)*((pi)/180)+phase)+xshift); %%(digital:70:110) (analog:191:259)
+    t(m,1) = 0;
+    k = 1;
+    while t(m,k) * f(1,m) < 6 * pi
+        pos = round(20 * sin(t(m,k) * f(1,m) + phase) + xshift); %%(digital:70:110) (analog:191:259)
         %Error Check on pos
         if pos > 179
             pos = 179;
@@ -48,12 +51,13 @@ for m = 1:size(f,2)
         analogInfo(m,k) = ard.analogRead(1);
         digitalInfo(m,k) = pos;
         rtd = toc; %Real Time Difference
-        pause(0.027-rtd);
+        pause(0.027-rtd); %%Hz = f/.027
         tic
-        rtdInfo(1,k)=rtd; %collect real time difference values during movement
+        t(m,k + 1) = t(m,k) + 0.027; %collect real time difference values during movement
+        k = k + 1;
     end
     stop(macRec);
-    rtdInfo(2,m) = mean(rtdInfo(1,:)); %store mean value of rtd for that movement
+    %rtdInfo(2,m) = mean(rtdInfo(1,:)); %store mean value of rtd for that movement
     %Move arm to neutral position
     pos = round(20*sin(f(1,m)*((pi)/180)+phase)+xshift);
     ard.servoWrite(9,pos);
