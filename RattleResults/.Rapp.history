@@ -11,268 +11,11 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"#
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
 summary(rattlelm)#
 #
-qplot(sec,RMS,data=rattledata,geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS,xlab="f",ylab="RMS")#
-quartz.save("RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "600ms, 5 runs, WTA 10-14", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "600ms, 5 runs, WTA 10-14", xlab="f",ylab="RMS")#
-quartz.save("RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "First 300ms, 5 runs, WTA 10-14", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "First 300ms, 5 runs, WTA 10-14", xlab="f",ylab="RMS")#
-quartz.save("RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "1000ms, 5 runs, WTA 10-19", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "1000ms, 5 runs, WTA 10-19", xlab="f",ylab="RMS")#
-quartz.save("RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "1000Ne 400Ni 800s, 5 runs, WTA 10-26", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("10-26_rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "1000Ne 400Ni 800s, 5 runs, WTA 10-26", xlab="f",ylab="RMS")#
-quartz.save("10-26_RMSvsf.pdf",type="pdf")
-plot(rattledata$s,rattledata$f, main= "1000Ne 400Ni 800s, 5 runs, WTA 10-26", xlab="s",ylab="f")#
-quartz.save("RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, WTA 10-27", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("10-27_rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, WTA 10-27", xlab="f",ylab="RMS")#
-quartz.save("10-27_RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "400s, 5 runs, WTA 10-29", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("10-29_rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "400s, 5 runs, WTA 10-29", xlab="f",ylab="RMS")#
-quartz.save("10-29_RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "400s, 5 runs, recur/WTA 10-29", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("10-29_rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "400s, 5 runs, recur/WTA 10-29", xlab="f",ylab="RMS")#
-quartz.save("10-29_RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
 qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
 quartz.save("11-18_300s_rattleresults.pdf",type="pdf")#
 #
 plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, ifourier 11-18", xlab="f",ylab="RMS")#
-quartz.save("11-18_300s_RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("11-18_300s_rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, ifourier 11-18", xlab="sec",ylab="RMS")#
-quartz.save("11-18_300s_RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('500data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "500s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("11-18_500s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('1000data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "1000s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("11-18_1000s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('1500data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "1500s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("11-18_1500s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('1500sdata.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "1500s, 5 runs, ifourier 11-18", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("11-18_1500s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('100data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "100s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("11-18_300s_rattleresults.pdf",type="pdf")#
-#
-plot(rattledata$f,rattledata$RMS, main= "100s, 5 runs, ifourier-0xshift 12-2", xlab="f",ylab="RMS")#
-quartz.save("12-2_100s_RMSvsf.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
-#
-setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('100data.csv')#
-colnames(rattledata) = c("run","yoked","sec","RMS","f")#
-rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
-rattledata$yoked[rattledata$yoked==1] = "yoked control"#
-#
-rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
-summary(rattlelm)#
-#
-qplot(sec,RMS,data=rattledata,main= "100s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("12-2_100s_rattleresults.pdf",type="pdf")
+quartz.save("11-18_300s_RMSvsf.pdf",type="pdf")#
 library(lme4)#
 library(lmerTest)#
 library(ggplot2)#
@@ -286,14 +29,17 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"#
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
 summary(rattlelm)#
 #
-qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("12-2_300s_rattleresults.pdf",type="pdf")
+qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, Rattle B fsine 2-9-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-9_300s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, Rattle B fsine 2-9-16", xlab="f",ylab="RMS")#
+quartz.save("2-9_300s_RMSvsf.pdf",type="pdf")
 library(lme4)#
 library(lmerTest)#
 library(ggplot2)#
 #
 setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('500data.csv')#
+rattledata = read.csv('600data.csv')#
 colnames(rattledata) = c("run","yoked","sec","RMS","f")#
 rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
 rattledata$yoked[rattledata$yoked==1] = "yoked control"#
@@ -301,14 +47,13 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"#
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
 summary(rattlelm)#
 #
-qplot(sec,RMS,data=rattledata,main= "500s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("12-2_500s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
+qplot(sec,RMS,data=rattledata,main= "600s, 5 runs, Rattle B fsine 2-9-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-9_600s_rattleresults.pdf",type="pdf")#
 #
+plot(rattledata$f,rattledata$RMS, main= "600s, 5 runs, Rattle B fsine 2-9-16", xlab="f",ylab="RMS")#
+quartz.save("2-9_600s_RMSvsf.pdf",type="pdf")
 setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('800data.csv')#
+rattledata = read.csv('600data.csv')#
 colnames(rattledata) = c("run","yoked","sec","RMS","f")#
 rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
 rattledata$yoked[rattledata$yoked==1] = "yoked control"#
@@ -316,14 +61,13 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"#
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
 summary(rattlelm)#
 #
-qplot(sec,RMS,data=rattledata,main= "800s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("12-2_800s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
+qplot(sec,RMS,data=rattledata,main= "600s, 5 runs, Rattle B fsine 2-9-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-9_600s_rattleresults.pdf",type="pdf")#
 #
+plot(rattledata$f,rattledata$RMS, main= "600s, 5 runs, Rattle B fsine 2-9-16", xlab="f",ylab="RMS")#
+quartz.save("2-9_600s_RMSvsf.pdf",type="pdf")#
 setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
-rattledata = read.csv('1000data.csv')#
+rattledata = read.csv('900data.csv')#
 colnames(rattledata) = c("run","yoked","sec","RMS","f")#
 rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
 rattledata$yoked[rattledata$yoked==1] = "yoked control"#
@@ -331,12 +75,25 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"#
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
 summary(rattlelm)#
 #
-qplot(sec,RMS,data=rattledata,main= "1000s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("12-2_1000s_rattleresults.pdf",type="pdf")
-library(lme4)#
-library(lmerTest)#
-library(ggplot2)#
+qplot(sec,RMS,data=rattledata,main= "900s, 5 runs, Rattle B fsine 2-9-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-9_900s_rattleresults.pdf",type="pdf")#
 #
+plot(rattledata$f,rattledata$RMS, main= "900s, 5 runs, Rattle B fsine 2-9-16", xlab="f",ylab="RMS")#
+quartz.save("2-9_900s_RMSvsf.pdf",type="pdf")#
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('1200data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "1200s, 5 runs, Rattle B fsine 2-9-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-9_1200s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "1200s, 5 runs, Rattle B fsine 2-9-16", xlab="f",ylab="RMS")#
+quartz.save("2-9_1200s_RMSvsf.pdf",type="pdf")#
 setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
 rattledata = read.csv('1500data.csv')#
 colnames(rattledata) = c("run","yoked","sec","RMS","f")#
@@ -346,5 +103,106 @@ rattledata$yoked[rattledata$yoked==1] = "yoked control"#
 rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
 summary(rattlelm)#
 #
-qplot(sec,RMS,data=rattledata,main= "1500s, 5 runs, ifourier-0xshift 12-2", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
-quartz.save("12-2_1500s_rattleresults.pdf",type="pdf")
+qplot(sec,RMS,data=rattledata,main= "1500s, 5 runs, Rattle B fsine 2-9-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-9_1500s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "1500s, 5 runs, Rattle B fsine 2-9-16", xlab="f",ylab="RMS")#
+quartz.save("2-9_1500s_RMSvsf.pdf",type="pdf")
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('300data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, Rattle C fsine 2-10-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-10_300s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, Rattle C fsine 2-10-16", xlab="f",ylab="RMS")#
+quartz.save("2-10_300s_RMSvsf.pdf",type="pdf")#
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('600data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "600s, 5 runs, Rattle C fsine 2-10-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-10_600s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "600s, 5 runs, Rattle C fsine 2-10-16", xlab="f",ylab="RMS")#
+quartz.save("2-10_600s_RMSvsf.pdf",type="pdf")#
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('900data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "900s, 5 runs, Rattle C fsine 2-10-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-10_900s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "900s, 5 runs, Rattle C fsine 2-10-16", xlab="f",ylab="RMS")#
+quartz.save("2-10_900s_RMSvsf.pdf",type="pdf")#
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('1200data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "1200s, 5 runs, Rattle C fsine 2-10-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-10_1200s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "1200s, 5 runs, Rattle C fsine 2-10-16", xlab="f",ylab="RMS")#
+quartz.save("2-10_1200s_RMSvsf.pdf",type="pdf")#
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('1500data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "1500s, 5 runs, Rattle C fsine 2-10-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-10_1500s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "1500s, 5 runs, Rattle C fsine 2-10-16", xlab="f",ylab="RMS")#
+quartz.save("2-10_1500s_RMSvsf.pdf",type="pdf")
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('300data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "300s, 5 runs, Rattle A fsine Low moment arm 2-11-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-11_300s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "300s, 5 runs, Rattle A fsine Low moment arm 2-11-16", xlab="f",ylab="RMS")#
+quartz.save("2-11_300s_RMSvsf.pdf",type="pdf")#
+setwd('/Users/Bubba/Desktop/COGS195/Github/RattleNN/RattleResults')#
+rattledata = read.csv('600data.csv')#
+colnames(rattledata) = c("run","yoked","sec","RMS","f")#
+rattledata$yoked[rattledata$yoked==0] = "RMS-reinforced"#
+rattledata$yoked[rattledata$yoked==1] = "yoked control"#
+#
+rattlelm = lmer(scale(RMS) ~ (1|run) + yoked + scale(sec) + yoked*scale(sec), data = rattledata)#
+summary(rattlelm)#
+#
+qplot(sec,RMS,data=rattledata,main= "600s, 5 runs, Rattle A fsine Low moment arm 2-11-16", geom=c("smooth"),method ="lm",formula=y~x,color=yoked)#
+quartz.save("2-11_600s_rattleresults.pdf",type="pdf")#
+#
+plot(rattledata$f,rattledata$RMS, main= "600s, 5 runs, Rattle A fsine Low moment arm 2-11-16", xlab="f",ylab="RMS")#
+quartz.save("2-11_600s_RMSvsf.pdf",type="pdf")
