@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<productData>
+  <dependsOn>
+    <component>
+      <name>hardwaresupportpkgs/testmeas/imaq_genericvideo_common</name>
+      <locale />
+      <platformList>
+        <platform>glnxa64</platform>
+        <platform>maci64</platform>
+        <platform>win32</platform>
+        <platform>win64</platform>
+      </platformList>
+      <version>1428003160</version>
+    </component>
+  </dependsOn>
+  <installerUsage>
+    <usage>professional</usage>
+  </installerUsage>
+  <isControllingProduct>false</isControllingProduct>
+  <platformList>
+    <platform>glnxa64</platform>
+    <platform>maci64</platform>
+    <platform>win32</platform>
+    <platform>win64</platform>
+  </platformList>
+  <productName>Image Acquisition Toolbox Support Package for OS Generic Video Interface</productName>
+  <productNumber>2044</productNumber>
+  <productVersion>14.2.1</productVersion>
+  <releaseDescription>R2014b</releaseDescription>
+  <releaseFamily>R2014b</releaseFamily>
+  <requiredProducts />
+</productData>
+

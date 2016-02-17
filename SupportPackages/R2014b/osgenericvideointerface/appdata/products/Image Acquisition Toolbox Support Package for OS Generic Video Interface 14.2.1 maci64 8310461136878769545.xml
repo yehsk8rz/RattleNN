@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<productAdditionalComps>
+  <dependsOn>
+    <component>
+      <name>hardwaresupportpkgs/testmeas/imaq_genericvideo_maci64</name>
+      <locale />
+      <platformList>
+        <platform>maci64</platform>
+      </platformList>
+      <version>1428003774</version>
+    </component>
+  </dependsOn>
+  <isControllingProduct>false</isControllingProduct>
+  <platform>maci64</platform>
+  <productName>Image Acquisition Toolbox Support Package for OS Generic Video Interface</productName>
+  <productNumber>2044</productNumber>
+  <productVersion>14.2.1</productVersion>
+  <releaseDescription>R2014b</releaseDescription>
+  <releaseFamily>R2014b</releaseFamily>
+</productAdditionalComps>
+

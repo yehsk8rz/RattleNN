@@ -15,7 +15,7 @@ macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID 
 pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
-xshift = 65;
+xshift = 45;
 phase = 0;
 maxHz = 20;
 minHz = 5;
@@ -54,7 +54,7 @@ for m = 1:size(f,2)
         pause(0.027-rtd); %%Hz = f/.027
         tic
         t(m,k + 1) = t(m,k) + 0.027; %collect real time difference values during movement
-        k = k + 1;
+        k = k + 1
     end
     stop(macRec);
     %rtdInfo(2,m) = mean(rtdInfo(1,:)); %store mean value of rtd for that movement

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<componentData>
+  <component>
+    <componentBaseName>hardwaresupportpkgs/testmeas/imaq_genericvideo</componentBaseName>
+    <componentFileName>hardwaresupportpkgs/testmeas/imaq_genericvideo_common_1428003160.zip</componentFileName>
+    <componentName>hardwaresupportpkgs/testmeas/imaq_genericvideo_common</componentName>
+    <componentVersion>1428003160</componentVersion>
+    <locale />
+    <numFiles>4</numFiles>
+    <platformList>
+      <platform>glnxa64</platform>
+      <platform>maci64</platform>
+      <platform>win32</platform>
+      <platform>win64</platform>
+    </platformList>
+    <releaseFamily>R2014b</releaseFamily>
+    <size>1642</size>
+    <type />
+    <uncompressedBytes>1166</uncompressedBytes>
+  </component>
+</componentData>
+
