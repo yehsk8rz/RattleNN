@@ -9,6 +9,26 @@ global ard macRec
 if ~isempty(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
     delete(instrfind({'Port'},{'/dev/tty.usbmodem1411'}))
 end
+vid = videoinput('macvideo',2,'YUY2_640x480');
+a=imaqhwinfo('macvideo',2)
+% Find a list of supported video formats: 
+a.SupportedFormats
+set(vid,'FramesPerTrigger',200);
+start(vid);
+wait(vid,Inf);
+% Retrieve the frames and timestamps for each frame.
+[frames,time] = getdata(vid, get(vid,'FramesAvailable'));
+% Calculate frame rate by averaging difference between each frame's timestamp
+framerate = mean(1./diff(time))
+% How often frames are stored from the video stream. For instance, if we 
+% set it to 5, then only 1 in 5 frames is kept -- the other 4 frames will 
+% be discarded. Using the framerate, determine how often you want to get frames
+set(vid,'FrameGrabInterval',1);
+% To determine how many frames to acquire in total, calculate the total 
+% number of frames that would be acquired at the device's frame rate, and then divide by the FrameGrabInterval.
+capturetime = 200;
+interval = get(vid,'FrameGrabInterval');
+numframes = floor(capturetime * framerate / interval)
 ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
 macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
@@ -35,6 +55,20 @@ digitalInfo = zeros(size(f,1),1000);
 t = zeros(size(f,1), 1000);
 
 for m = 1:size(f,2)
+
+%For a large # of frames. Log images to disk as avi rather than memory
+set(vid,'LoggingMode','disk');
+%Set avi file name and play back frame rate
+filename= ['movement',num2str(m),'.avi'];
+avi = VideoWriter(filename);
+set(vid,'DiskLogger',avi);
+%Similar to mic recording, data aquisition does not tie up Matlab
+triggerconfig(vid,'manual');
+start(vid); %There'll be a delay here, but nothing is being captured
+trigger(vid); %Use this line when you want the capture to start. There should be very little delay.
+%While t~= 100
+%wait(vid,Inf); % Wait for the capture to complete before continuing.
+
     record(macRec);
     tic
     t(m,1) = 0;
@@ -57,7 +91,9 @@ for m = 1:size(f,2)
         k = k + 1
     end
     stop(macRec);
+    stop(vid);
     %rtdInfo(2,m) = mean(rtdInfo(1,:)); %store mean value of rtd for that movement
+    avi = get(vid,'DiskLogger');
     %Move arm to neutral position
     pos = round(20*sin(f(1,m)*((pi)/180)+phase)+xshift);
     ard.servoWrite(9,pos);
@@ -88,3 +124,6 @@ plot(mean(analogInfo'))
 title('Mean Analog Values')
 xlabel('frequency')
 ylabel('analog value')
+
+delete(vid);
+clear vid;
