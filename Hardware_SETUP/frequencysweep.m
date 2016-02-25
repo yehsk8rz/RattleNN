@@ -26,7 +26,7 @@ framerate = mean(1./diff(time))
 set(vid,'FrameGrabInterval',1);
 % To determine how many frames to acquire in total, calculate the total 
 % number of frames that would be acquired at the device's frame rate, and then divide by the FrameGrabInterval.
-capturetime = 200;
+capturetime = 300;
 interval = get(vid,'FrameGrabInterval');
 numframes = floor(capturetime * framerate / interval)
 ard = arduino('/dev/tty.usbmodem1411');
@@ -35,11 +35,11 @@ macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID 
 pos = 90;
 micRMS = 0;
 ard.servoWrite(9,pos);
-xshift = 45;
+xshift = 90;
 phase = 0;
 maxHz = 20;
 minHz = 5;
-fDiv = .5;
+fDiv = 1;
 %Create Frequency Sweep Array
 j = 1;
 for i = minHz:fDiv:maxHz
@@ -65,9 +65,9 @@ set(vid,'DiskLogger',avi);
 %Similar to mic recording, data aquisition does not tie up Matlab
 triggerconfig(vid,'manual');
 start(vid); %There'll be a delay here, but nothing is being captured
+pause(2);
 trigger(vid); %Use this line when you want the capture to start. There should be very little delay.
 %While t~= 100
-%wait(vid,Inf); % Wait for the capture to complete before continuing.
 
     record(macRec);
     tic
@@ -82,13 +82,13 @@ trigger(vid); %Use this line when you want the capture to start. There should be
             pos = 1;
         end
         ard.servoWrite(9,pos);
-        analogInfo(m,k) = ard.analogRead(1);
+        %analogInfo(m,k) = ard.analogRead(1);
         digitalInfo(m,k) = pos;
-        rtd = toc; %Real Time Difference
+        rtd = toc %Real Time Difference
         pause(0.027-rtd); %%Hz = f/.027
         tic
         t(m,k + 1) = t(m,k) + 0.027; %collect real time difference values during movement
-        k = k + 1
+        k = k + 1;
     end
     stop(macRec);
     stop(vid);
@@ -109,21 +109,21 @@ plot(soundInfo(1,:))
 title('soundInfo')
 xlabel('frequency/fDiv')
 ylabel('RMS')
-subplot(2,2,2)
-plot(analogInfo(10,:))
-title('10Hz-AnalogInfo')
-xlabel('Timestep')
-ylabel('analog value')
-subplot(2,2,3)
-plot(max(analogInfo)-min(analogInfo))
-title('Servo Stability')
-xlabel('timestep')
-ylabel('analog difference')
-subplot(2,2,4)
-plot(mean(analogInfo'))
-title('Mean Analog Values')
-xlabel('frequency')
-ylabel('analog value')
+%subplot(2,2,2)
+%plot(analogInfo(10,:))
+%title('10Hz-AnalogInfo')
+%xlabel('Timestep')
+%ylabel('analog value')
+%subplot(2,2,3)
+%plot(max(analogInfo)-min(analogInfo))
+%title('Servo Stability')
+%xlabel('timestep')
+%ylabel('analog difference')
+%subplot(2,2,4)
+%plot(mean(analogInfo'))
+%title('Mean Analog Values')
+%xlabel('frequency')
+%ylabel('analog value')
 
 delete(vid);
 clear vid;
