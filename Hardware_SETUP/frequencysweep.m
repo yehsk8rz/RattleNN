@@ -37,9 +37,9 @@ micRMS = 0;
 ard.servoWrite(9,pos);
 xshift = 90;
 phase = 0;
-maxHz = 20;
-minHz = 5;
-fDiv = 1;
+maxHz = 14;
+minHz = 8;
+fDiv = .1;
 %Create Frequency Sweep Array
 j = 1;
 for i = minHz:fDiv:maxHz

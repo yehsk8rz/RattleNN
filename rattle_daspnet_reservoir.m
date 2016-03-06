@@ -154,7 +154,7 @@ end
 ard = arduino('/dev/tty.usbmodem1411');
 ard.servoAttach(9);
 macRec = audiorecorder(44100,16,1,0);   %Use audiodevinfo(1,:) to figure out ID to use.Can also use audiodevinfo(1,44100,16,1) to auto find a working ID.(Typically 1 for FYmbp 1 , and 0 for EOCmac)
-pos = 65;
+pos = 100;
 micRMS = 0;
 ard.servoWrite(9,pos);
 
@@ -259,12 +259,12 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
         % Every testint seconds, use the motor neuron spikes to generate a sound.
         if (mod(sec,testint)==0)
             if strcmp(motControl,'WTA')
-                    sumWTAspikes(1,1)=size(find(motFirings(:,2)<(Nmot/wtascale)),1);
+                sumWTAspikes(1,1)=size(find(motFirings(:,2)<(Nmot/wtascale)),1);
                 for i= 2:wtascale
                     sumWTAspikes(1,i)=size(find(motFirings(:,2)>(i-1)*round(Nmot/wtascale)+1 & motFirings(:,2)<i*round(Nmot/wtascale)),1);
                 end
-                sumWTAspikes(1,wtascale)=size(find(motFirings(:,2)>(wtascale-1)*(Nmot/wtascale)+1),1); 
-                 maxmusclspikes = find(sumWTAspikes(1,:)==max(sumWTAspikes(1,:)));
+                sumWTAspikes(1,wtascale)=size(find(motFirings(:,2)>(wtascale-1)*(Nmot/wtascale)+1),1);
+                maxmusclspikes = find(sumWTAspikes(1,:)==max(sumWTAspikes(1,:)));
                 %Error checking (if groups spike same amount)
                 if maxmusclspikes == 0
                     wta = 0;
@@ -331,7 +331,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                 end
                 
                 if strcmp(motControl,'WTA') || strcmp(motControl,'fsine')
-                    xshift = 120;
+                    xshift = 100;
                     record(macRec);
                     tic
                     for k = 1:100
@@ -561,6 +561,7 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
     end
 end
 end
+
 
 %Call teacher() to set variable targetRMS to ideal sine wave
 function [targetRMS] = teacher()
