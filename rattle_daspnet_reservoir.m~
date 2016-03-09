@@ -272,42 +272,18 @@ for sec=(sec+1):T % T is the duration of the simulation in seconds.
                     wta = maxmusclspikes;
                 end
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
             elseif strcmp(motControl,'fsine')
                 if sec < 300
                 firedmusc1pos=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
                 firedmusc1neg=find(v_mot(Nmot/2+1:end)>=30);
                 else
-                    %at sec 300, switch muscle group designation
-                firedmusc1neg=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
-                firedmusc1pos=find(v_mot(Nmot/2+1:end)>=30);
+                firedmusc1=find(v_mot(1:Nmot/2)>=30); % Find out which of the jaw/lip motor neurons fired.
+                firedmusc1neg=find(v_mot(Nmot/2+1:end)>=30);
                 end
                 summusc1posspikes(t)=size(firedmusc1pos,1); % Sum the spikes at each timestep across the set of motor neurons.
                 summusc1negspikes(t)=size(firedmusc1neg,1);
                 
-                   
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+                    
                 
             elseif strcmp(motControl,'servo')
                 tic %should be placed at beginning of each ms iteration to make this operate in reall time with real network time
